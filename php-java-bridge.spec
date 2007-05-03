@@ -8,7 +8,7 @@
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Name:           php-%{modname}
 Version:        4.0.1
-Release:        %mkrel 2
+Release:        %mkrel 3
 Epoch:          0
 Group:          Development/PHP
 License:        PHP License
