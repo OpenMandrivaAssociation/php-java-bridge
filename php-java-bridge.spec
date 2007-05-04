@@ -1,3 +1,5 @@
+%bcond_with             faces
+
 %define modname         java-bridge
 %define webappdir       %{_var}/lib/tomcat5/webapps
 %define build_free      1
@@ -7,14 +9,14 @@
 
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Name:           php-%{modname}
-Version:        4.0.1
-Release:        %mkrel 3
+Version:        4.0.8a
+Release:        %mkrel 1
 Epoch:          0
 Group:          Development/PHP
 License:        PHP License
 URL:            http://php-java-bridge.sourceforge.net/
 Source0:        http://internap.dl.sourceforge.net/sourceforge/php-java-bridge/php-java-bridge_%{version}.tar.gz
-Requires:       %{name}-backend
+Requires:       %{name}-backend = %{epoch}:%{version}-%{release}
 Requires:       ejb
 Requires:       java >= 0:1.4.2
 Requires:       mod_php
@@ -27,7 +29,9 @@ Requires:       jakarta-taglibs-standard
 Requires:       kawa
 Requires:       log4j
 Requires:       lucene
+%if %with faces
 Requires:       myfaces
+%endif
 Requires:       servletapi5
 BuildRequires:  ejb
 BuildRequires:  gcc-c++
@@ -42,7 +46,9 @@ BuildRequires:  jakarta-taglibs-standard
 BuildRequires:  kawa
 BuildRequires:  log4j
 BuildRequires:  lucene
+%if %with faces
 BuildRequires:  myfaces
+%endif
 BuildRequires:  servletapi5
 %if %{gcj_support}
 Requires(post): java-gcj-compat
@@ -67,8 +73,8 @@ Requires:       php-java-bridge = %{epoch}:%{version}
 Requires:       tomcat5
 Requires(post): rpm-helper
 Requires(postun): rpm-helper
-Obsoletes:      php-java-bridge-standalone
-Provides:       %{name}-backend
+Obsoletes:      php-java-bridge-standalone < %{epoch}:%{version}-%{release}
+Provides:       %{name}-backend = %{epoch}:%{version}-%{release}
 
 %description tomcat
 The Tomcat/J2EE backend for the PHP/Java Bridge deploys the J2EE
@@ -98,6 +104,7 @@ popd
 %{_bindir}/find . -name "*.war" | %{_bindir}/xargs -t %{__rm} -f
 %{_bindir}/find . -name "*.dll" | %{_bindir}/xargs -t %{__rm} -f
 %{_bindir}/find . -name "*.exe" | %{_bindir}/xargs -t %{__rm} -f
+%{__perl} -pi -e 's| WEB-INF/cgi/\*\.exe||' server/Makefile.am
 %endif
 export CLASSPATH=
 pushd server
@@ -117,8 +124,10 @@ pushd examples/J2EE/RMI-IIOP/src
 %{jar} cf ../documentBean.jar *
 popd
 pushd unsupported
+%if %with faces
 %{__ln_s} %{_javadir}/myfaces/myfaces-jsf-api.jar jsf-api.jar
 %{__ln_s} %{_javadir}/myfaces/myfaces-impl.jar jsf-impl.jar
+%endif
 %{__ln_s} %{_javadir}/jakarta-taglibs-core.jar jstl.jar
 %{__ln_s} %{_javadir}/kawa.jar kawa.jar
 %{__ln_s} %{_javadir}/log4j.jar log4j.jar
@@ -142,7 +151,12 @@ export CLASSPATH=
 (cd server && %{__autoconf})
 %{configure2_5x} --with-java=%{java_home} \
                  --enable-servlet=%{_javadir}/servletapi5.jar \
+%if %with faces
                  --enable-faces=%{_javadir}/myfaces/myfaces-jsf-api.jar
+%else
+                 --disable-faces
+
+%endif
 %{__make}
 
 %install
@@ -161,10 +175,12 @@ popd
 %{__install} -m 644 java.ini %{buildroot}%{_sysconfdir}/php.d/java.ini
 %{__install} -m 644 mono.ini %{buildroot}%{_sysconfdir}/php.d/mono.ini
 
-for i in examples/php+jsp/index.php examples/php+jsp/index.html \
-  examples/java-server-faces/helloWorld.jsp \
-  examples/java-server-faces/page2.jsp tests.php5/NumberTest.java \
-  tests.php4/NumberTest.java; do
+for i in examples/php+jsp/index.php \
+         examples/php+jsp/index.html \
+         examples/java-server-faces/helloWorld.jsp \
+         examples/java-server-faces/page2.jsp \
+         tests.php5/NumberTest.java \
+         tests.php4/NumberTest.java; do
   %{__perl} -pi -e 's/\r$//g' ${i}
 done
 
