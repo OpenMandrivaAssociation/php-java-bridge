@@ -5,12 +5,12 @@
 %define build_free      1
 %define gcj_support     1
 
-%define _requires_exceptions pear(lucene/All.php)\\|pear(rt/java_io_File.php)\\|pear(javabridge/Java.php)\\|pear(itext/All.php)\\|pear(rt/java_awt_Color.php)\\|pear(rt/java_io_ByteArrayOutputStream.php)\\|pear(rt/java_lang_System.php)\\|pear(java/Java.php)
+%define _requires_exceptions pear(lucene/All.php)\\|pear(rt/java_io_File.php)\\|pear(javabridge/Java.php)\\|pear(itext/All.php)\\|pear(rt/java_awt_Color.php)\\|pear(rt/java_io_ByteArrayOutputStream.php)\\|pear(rt/java_lang_System.php)\\|pear(java/Java.php)\\|pear(rt/java_util_LinkedList.php)
 
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Name:           php-%{modname}
 Version:        4.0.8a
-Release:        %mkrel 1
+Release:        %mkrel 2
 Epoch:          0
 Group:          Development/PHP
 License:        PHP License
