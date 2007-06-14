@@ -10,7 +10,7 @@
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Name:           php-%{modname}
 Version:        4.0.8a
-Release:        %mkrel 3
+Release:        %mkrel 4
 Epoch:          0
 Group:          Development/PHP
 License:        PHP License
@@ -94,6 +94,7 @@ development documentation and the development files needed to create
 Java applications with embedded PHP scripts.
 
 %prep
+
 %setup -q
 pushd examples/php+jsp
 %{jar} xf numberGuess.jar
@@ -144,6 +145,16 @@ popd
 %{__perl} -pi -e 's|\$CC|\$CC -fPIC|g' tests.m4/java_check_jni.m4      
 
 %build
+export CFLAGS="%{optflags}"
+export CXXFLAGS="%{optflags}"
+export FFLAGS="%{optflags}"
+
+%if %mdkversion >= 200710
+export CFLAGS="$CFLAGS -fstack-protector"
+export CXXFLAGS="$CXXFLAGS -fstack-protector"
+export FFLAGS="$FFLAGS -fstack-protector"
+%endif
+
 export CLASSPATH=
 %{_bindir}/phpize
 %{__aclocal} -I tests.m4
@@ -247,5 +258,3 @@ popd
 %doc README.GNU_JAVA README.MONO+NET ChangeLog PROTOCOL.TXT documentation examples tests.php5 tests.php4 php_java_lib INSTALL
 %{_libdir}/php/extensions/php-script.jar
 %{_libdir}/php/extensions/script-api.jar
-
-
