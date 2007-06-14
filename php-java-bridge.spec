@@ -9,13 +9,18 @@
 
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Name:           php-%{modname}
-Version:        4.0.8a
-Release:        %mkrel 4
+Version:        4.1.0a
+Release:        %mkrel 1
 Epoch:          0
 Group:          Development/PHP
 License:        PHP License
 URL:            http://php-java-bridge.sourceforge.net/
-Source0:        http://internap.dl.sourceforge.net/sourceforge/php-java-bridge/php-java-bridge_%{version}.tar.gz
+# XXX: upstream is terrible about providing source releases
+# cvs -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge login   
+# cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -P -D 2007/06/14 php-java-bridge
+# tar cvvjf php-java-bridge-%{version}.tar.bz2 php-java-bridge
+Source0:        %{name}-%{version}.tar.bz2
+#Source0:        http://internap.dl.sourceforge.net/sourceforge/php-java-bridge/php-java-bridge_%{version}.tar.gz
 Requires:       %{name}-backend = %{epoch}:%{version}-%{release}
 Requires:       ejb
 Requires:       java >= 0:1.4.2
@@ -94,8 +99,9 @@ development documentation and the development files needed to create
 Java applications with embedded PHP scripts.
 
 %prep
-
-%setup -q
+#%setup -q
+%setup -q -n %{name}
+%{_bindir}/find . -type d -name CVS | %{_bindir}/xargs %{__rm} -r
 pushd examples/php+jsp
 %{jar} xf numberGuess.jar
 popd
