@@ -15,7 +15,8 @@ Epoch:          0
 Group:          Development/PHP
 License:        PHP License
 URL:            http://php-java-bridge.sourceforge.net/
-# XXX: upstream is terrible about providing source releases
+# XXX: upstream is terrible about providing pure source releases
+# XXX: and CVS doesn't help because it contains binaries also
 # cvs -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge login   
 # cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -P -D 2007/06/14 php-java-bridge
 # tar cvvjf php-java-bridge-%{version}.tar.bz2 php-java-bridge
@@ -102,6 +103,7 @@ Java applications with embedded PHP scripts.
 #%setup -q
 %setup -q -n %{name}
 %{_bindir}/find . -type d -name CVS | %{_bindir}/xargs %{__rm} -r
+%{__ln_s} tests.php5/ tests
 pushd examples/php+jsp
 %{jar} xf numberGuess.jar
 popd
@@ -150,22 +152,26 @@ pushd unsupported
 popd
 %{__perl} -pi -e 's|\$CC|\$CC -fPIC|g' tests.m4/java_check_jni.m4      
 
+%{_bindir}/phpize
+%{__aclocal} -I . -I ./tests.m4/
+%{__autoconf}
+pushd server
+%{__aclocal} -I . -I ../tests.m4/
+%{__autoconf}
+popd
+
 %build
 export CFLAGS="%{optflags}"
 export CXXFLAGS="%{optflags}"
 export FFLAGS="%{optflags}"
 
-%if %mdkversion >= 200710
+%if %{mdkversion} >= 200710
 export CFLAGS="$CFLAGS -fstack-protector"
 export CXXFLAGS="$CXXFLAGS -fstack-protector"
 export FFLAGS="$FFLAGS -fstack-protector"
 %endif
 
 export CLASSPATH=
-%{_bindir}/phpize
-%{__aclocal} -I tests.m4
-%{__autoconf}
-(cd server && %{__autoconf})
 %{configure2_5x} --with-java=%{java_home} \
                  --enable-servlet=%{_javadir}/servletapi5.jar \
 %if %with faces
@@ -183,7 +189,7 @@ pushd server
 %{jar} uf JavaBridge.war TestInstallation.class
 popd
 
-%{makeinstall} INSTALL_ROOT=%{buildroot}
+%{__make} INSTALL_ROOT=%{buildroot} install
 
 %{__rm} -f %{buildroot}%{_libdir}/php/extensions/libnatcJavaBridge.a
 
@@ -201,15 +207,15 @@ for i in examples/php+jsp/index.php \
   %{__perl} -pi -e 's/\r$//g' ${i}
 done
 
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm --exclude %{_libdir}/php/extensions/JavaBridge.war
-%endif
-
 %{__mkdir_p} %{buildroot}%{webappdir}/JavaBridge
 pushd %{buildroot}%{webappdir}/JavaBridge
 %{jar} xf %{buildroot}%{_libdir}/php/extensions/JavaBridge.war
 %{__rm} -f %{buildroot}%{_libdir}/php/extensions/JavaBridge.war
 popd
+
+%if %{gcj_support}
+%{_bindir}/aot-compile-rpm
+%endif
 
 %{__cp} -a examples/J2EE/RMI-IIOP/documentBean.jar %{buildroot}%{webappdir}/JavaBridge/WEB-INF/lib
 
@@ -217,6 +223,9 @@ popd
 
 %{__chmod} 755 %{buildroot}%{webappdir}/JavaBridge/WEB-INF/cgi/*.sh
 %{__chmod} 755 %{buildroot}%{webappdir}/JavaBridge/test.php
+
+%check
+%{__make} test
 
 %clean
 %{__rm} -rf %{buildroot}
