@@ -10,7 +10,7 @@
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Name:           php-%{modname}
 Version:        4.1.0a
-Release:        %mkrel 1
+Release:        %mkrel 2
 Epoch:          0
 Group:          Development/PHP
 License:        PHP License
@@ -161,15 +161,7 @@ pushd server
 popd
 
 %build
-export CFLAGS="%{optflags}"
-export CXXFLAGS="%{optflags}"
-export FFLAGS="%{optflags}"
-
-%if %{mdkversion} >= 200710
-export CFLAGS="$CFLAGS -fstack-protector"
-export CXXFLAGS="$CXXFLAGS -fstack-protector"
-export FFLAGS="$FFLAGS -fstack-protector"
-%endif
+%serverbuild
 
 export CLASSPATH=
 %{configure2_5x} --with-java=%{java_home} \
