@@ -7,19 +7,20 @@
 
 %define _requires_exceptions pear(lucene/All.php)\\|pear(rt/java_io_File.php)\\|pear(javabridge/Java.php)\\|pear(itext/All.php)\\|pear(rt/java_awt_Color.php)\\|pear(rt/java_io_ByteArrayOutputStream.php)\\|pear(rt/java_lang_System.php)\\|pear(java/Java.php)\\|pear(rt/java_util_LinkedList.php)
 
-Summary:        PHP Hypertext Preprocessor to Java Bridge
 Name:           php-%{modname}
-Version:        4.1.0a
-Release:        %mkrel 2
+Version:        4.2.2
+Release:        %mkrel 1
 Epoch:          0
+Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
 License:        PHP License
 URL:            http://php-java-bridge.sourceforge.net/
 # XXX: upstream is terrible about providing pure source releases
 # XXX: and CVS doesn't help because it contains binaries also
 # cvs -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge login   
-# cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -P -D 2007/06/14 php-java-bridge
-# tar cvvjf php-java-bridge-%{version}.tar.bz2 php-java-bridge
+# cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -r upstream_version_4_2_2 php-java-bridge
+# mv php-java-bridge php-java-bridge-4.2.2
+# tar cvjf php-java-bridge-4.2.2.tar.bz2 php-java-bridge-4.2.2
 Source0:        %{name}-%{version}.tar.bz2
 #Source0:        http://internap.dl.sourceforge.net/sourceforge/php-java-bridge/php-java-bridge_%{version}.tar.gz
 Requires:       %{name}-backend = %{epoch}:%{version}-%{release}
@@ -100,19 +101,18 @@ development documentation and the development files needed to create
 Java applications with embedded PHP scripts.
 
 %prep
-#%setup -q
-%setup -q -n %{name}
+%setup -q
 %{_bindir}/find . -type d -name CVS | %{_bindir}/xargs %{__rm} -r
 %{__ln_s} tests.php5/ tests
 pushd examples/php+jsp
 %{jar} xf numberGuess.jar
 popd
 %if %{build_free}
-%{_bindir}/find . -name "*.class" | %{_bindir}/xargs -t %{__rm} -f
-%{_bindir}/find . -name "*.jar" | %{_bindir}/xargs -t %{__rm} -f
-%{_bindir}/find . -name "*.war" | %{_bindir}/xargs -t %{__rm} -f
-%{_bindir}/find . -name "*.dll" | %{_bindir}/xargs -t %{__rm} -f
-%{_bindir}/find . -name "*.exe" | %{_bindir}/xargs -t %{__rm} -f
+%{_bindir}/find . -name "*.class" | %{_bindir}/xargs -t %{__rm}
+%{_bindir}/find . -name "*.jar" | %{_bindir}/xargs -t %{__rm}
+%{_bindir}/find . -name "*.war" | %{_bindir}/xargs -t %{__rm}
+%{_bindir}/find . -name "*.dll" | %{_bindir}/xargs -t %{__rm}
+%{_bindir}/find . -name "*.exe" | %{_bindir}/xargs -t %{__rm}
 %{__perl} -pi -e 's| WEB-INF/cgi/\*\.exe||' server/Makefile.am
 %endif
 export CLASSPATH=
