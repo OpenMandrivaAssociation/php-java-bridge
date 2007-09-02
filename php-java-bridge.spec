@@ -9,7 +9,7 @@
 
 Name:           php-%{modname}
 Version:        4.2.2
-Release:        %mkrel 1
+Release:        %mkrel 2
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
@@ -41,8 +41,6 @@ Requires:       myfaces
 %endif
 Requires:       servletapi5
 BuildRequires:  ejb
-BuildRequires:  gcc-c++
-BuildRequires:  java-devel >= 0:1.4.2
 BuildRequires:  php-devel >= 3:5.2.0
 BuildRequires:  jakarta-commons-beanutils
 BuildRequires:  jakarta-commons-collections
