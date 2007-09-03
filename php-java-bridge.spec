@@ -9,7 +9,7 @@
 
 Name:           php-%{modname}
 Version:        4.2.2
-Release:        %mkrel 2
+Release:        %mkrel 3
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
@@ -246,7 +246,9 @@ popd
 %attr(0755,root,root) %{_libdir}/php/extensions/java.so
 %attr(0755,root,root) %{_libdir}/php/extensions/libnatcJavaBridge.so
 %attr(0755,root,root) %{_libdir}/php/extensions/RunJavaBridge
+%if 0
 %attr(0755,root,root) %{_libdir}/php/extensions/java
+%endif
 %exclude %{_libdir}/php/extensions/javabridge.policy
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/java.ini
 %exclude %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/mono.ini
