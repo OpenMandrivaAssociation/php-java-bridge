@@ -9,7 +9,7 @@
 
 Name:           php-%{modname}
 Version:        4.2.2
-Release:        %mkrel 3
+Release:        %mkrel 4
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
@@ -56,8 +56,6 @@ BuildRequires:  myfaces
 %endif
 BuildRequires:  servletapi5
 %if %{gcj_support}
-Requires(post): java-gcj-compat
-Requires(postun): java-gcj-compat
 BuildRequires:  java-gcj-compat-devel
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
