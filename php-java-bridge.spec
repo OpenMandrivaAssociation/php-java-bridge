@@ -220,6 +220,10 @@ if [ -f /var/lock/subsys/httpd ]; then
     %{_initrddir}/httpd restart >/dev/null || :
 fi
 
+%if %{gcj_support}
+%{update_gcjdb}
+%endif
+
 %postun
 if [ "$1" = "0" ]; then
     if [ -f /var/lock/subsys/httpd ]; then
@@ -227,14 +231,7 @@ if [ "$1" = "0" ]; then
     fi
 fi
 
-%clean
-%{__rm} -rf %{buildroot}
-
 %if %{gcj_support}
-%post
-%{update_gcjdb}
-
-%postun
 %{clean_gcjdb}
 %endif
 
@@ -243,6 +240,9 @@ fi
 
 %postun tomcat
 %{_postun_webapp}
+
+%clean
+%{__rm} -rf %{buildroot}
 
 %files
 %defattr(0644,root,root,0755)
