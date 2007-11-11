@@ -9,7 +9,7 @@
 
 Name:           php-%{modname}
 Version:        4.2.2
-Release:        %mkrel 4
+Release:        %mkrel 5
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
@@ -214,6 +214,18 @@ popd
 
 %check
 %{__make} test
+
+%post
+if [ -f /var/lock/subsys/httpd ]; then
+    %{_initrddir}/httpd restart >/dev/null || :
+fi
+
+%postun
+if [ "$1" = "0" ]; then
+    if [ -f /var/lock/subsys/httpd ]; then
+	%{_initrddir}/httpd restart >/dev/null || :
+    fi
+fi
 
 %clean
 %{__rm} -rf %{buildroot}
