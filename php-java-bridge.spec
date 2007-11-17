@@ -8,8 +8,8 @@
 %define _requires_exceptions pear(lucene/All.php)\\|pear(rt/java_io_File.php)\\|pear(javabridge/Java.php)\\|pear(itext/All.php)\\|pear(rt/java_awt_Color.php)\\|pear(rt/java_io_ByteArrayOutputStream.php)\\|pear(rt/java_lang_System.php)\\|pear(java/Java.php)\\|pear(rt/java_util_LinkedList.php)
 
 Name:           php-%{modname}
-Version:        4.2.2
-Release:        %mkrel 5
+Version:        4.3.0
+Release:        %mkrel 1
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
@@ -18,11 +18,12 @@ URL:            http://php-java-bridge.sourceforge.net/
 # XXX: upstream is terrible about providing pure source releases
 # XXX: and CVS doesn't help because it contains binaries also
 # cvs -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge login   
-# cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -r upstream_version_4_2_2 php-java-bridge
-# mv php-java-bridge php-java-bridge-4.2.2
-# tar cvjf php-java-bridge-4.2.2.tar.bz2 php-java-bridge-4.2.2
+# cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -r upstream_version_4_3_0 php-java-bridge
+# mv php-java-bridge php-java-bridge-4.3.0
+# tar cvjf php-java-bridge-4.3.0.tar.bz2 php-java-bridge-4.3.0
 Source0:        %{name}-%{version}.tar.bz2
 #Source0:        http://internap.dl.sourceforge.net/sourceforge/php-java-bridge/php-java-bridge_%{version}.tar.gz
+Source1:        %{name}-cvs.sh
 Requires:       %{name}-backend = %{epoch}:%{version}-%{release}
 Requires:       ejb
 Requires:       java >= 0:1.4.2
@@ -99,10 +100,25 @@ Java applications with embedded PHP scripts.
 %prep
 %setup -q
 %{_bindir}/find . -type d -name CVS | %{_bindir}/xargs %{__rm} -r
+%{_bindir}/find documentation/API -name '*.html' -o -name '*.css' | %{_bindir}/xargs %{__perl} -pi -e 's/\r$//g'
+for i in examples/php+jsp/index.php \
+         examples/php+jsp/index.html \
+         examples/java-server-faces/helloWorld.jsp \
+         examples/java-server-faces/page2.jsp \
+         tests.php5/NumberTest.java \
+         tests.php4/NumberTest.java; do
+  %{__perl} -pi -e 's/\r$//g' ${i}
+done
+
+%{__rm} server/WEB-INF/cgi/php-cgi-i386-linux
+%{__rm} server/WEB-INF/cgi/php-cgi-x86-sunos
+%{__rm} server/WEB-INF/cgi/php-cgi-i386-freebsd
+
 %{__ln_s} tests.php5/ tests
 pushd examples/php+jsp
 %{jar} xf numberGuess.jar
 popd
+
 %if %{build_free}
 %{_bindir}/find . -name "*.class" | %{_bindir}/xargs -t %{__rm}
 %{_bindir}/find . -name "*.jar" | %{_bindir}/xargs -t %{__rm}
@@ -111,23 +127,7 @@ popd
 %{_bindir}/find . -name "*.exe" | %{_bindir}/xargs -t %{__rm}
 %{__perl} -pi -e 's| WEB-INF/cgi/\*\.exe||' server/Makefile.am
 %endif
-export CLASSPATH=
-pushd server
-%{javac} TestInstallation.java
-popd
-pushd examples/php+jsp
-%{javac} num/NumberGuessBean.java
-%{jar} cf numberGuess.jar num
-%{__rm} -rf num
-popd
-pushd examples/J2EE/RMI-IIOP/src
-%{javac} -classpath $(build-classpath ejb) *.java
-%{jar} cf ../../../../unsupported/documentBeanClient.jar *
-%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentHome   
-%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentRemote   
-%{__rm} -f *_Skel*.class
-%{jar} cf ../documentBean.jar *
-popd
+
 pushd unsupported
 %if %with faces
 %{__ln_s} %{_javadir}/myfaces/myfaces-jsf-api.jar jsf-api.jar
@@ -146,6 +146,25 @@ pushd unsupported
 %{__ln_s} %{_javadir}/ejb.jar ejb.jar
 %{__ln_s} %{_javadir}/lucene.jar lucene.jar
 popd
+
+export CLASSPATH=
+pushd server
+%{javac} TestInstallation.java
+popd
+pushd examples/php+jsp
+%{javac} num/NumberGuessBean.java
+%{jar} cf numberGuess.jar num
+%{__rm} -rf num
+popd
+pushd examples/J2EE/RMI-IIOP/src
+%{javac} -classpath $(build-classpath ejb) *.java
+%{jar} cf ../../../../unsupported/documentBeanClient.jar *
+%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentHome   
+%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentRemote   
+%{__rm} -f *_Skel*.class
+%{jar} cf ../documentBean.jar *
+popd
+
 %{__perl} -pi -e 's|\$CC|\$CC -fPIC|g' tests.m4/java_check_jni.m4      
 
 %{_bindir}/phpize
@@ -186,24 +205,11 @@ popd
 %{__install} -m 644 java.ini %{buildroot}%{_sysconfdir}/php.d/java.ini
 %{__install} -m 644 mono.ini %{buildroot}%{_sysconfdir}/php.d/mono.ini
 
-for i in examples/php+jsp/index.php \
-         examples/php+jsp/index.html \
-         examples/java-server-faces/helloWorld.jsp \
-         examples/java-server-faces/page2.jsp \
-         tests.php5/NumberTest.java \
-         tests.php4/NumberTest.java; do
-  %{__perl} -pi -e 's/\r$//g' ${i}
-done
-
 %{__mkdir_p} %{buildroot}%{webappdir}/JavaBridge
 pushd %{buildroot}%{webappdir}/JavaBridge
 %{jar} xf %{buildroot}%{_libdir}/php/extensions/JavaBridge.war
 %{__rm} -f %{buildroot}%{_libdir}/php/extensions/JavaBridge.war
 popd
-
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
 
 %{__cp} -a examples/J2EE/RMI-IIOP/documentBean.jar %{buildroot}%{webappdir}/JavaBridge/WEB-INF/lib
 
@@ -211,6 +217,23 @@ popd
 
 %{__chmod} 755 %{buildroot}%{webappdir}/JavaBridge/WEB-INF/cgi/*.sh
 %{__chmod} 755 %{buildroot}%{webappdir}/JavaBridge/test.php
+
+pushd %{buildroot}%{webappdir}/JavaBridge/WEB-INF/lib
+%{__rm} commons-beanutils.jar && %{__ln_s} %{_javadir}/commons-beanutils.jar commons-beanutils.jar
+%{__rm} commons-collections.jar && %{__ln_s} %{_javadir}/commons-collections.jar commons-collections.jar
+%{__rm} commons-digester.jar && %{__ln_s} %{_javadir}/commons-digester.jar commons-digester.jar
+%{__rm} commons-logging.jar && %{__ln_s} %{_javadir}/commons-logging.jar commons-logging.jar
+%{__rm} ejb.jar && %{__ln_s} %{_javadir}/ejb.jar ejb.jar
+%{__rm} jstl.jar && %{__ln_s} %{_javadir}/jakarta-taglibs-core.jar jstl.jar
+%{__rm} kawa.jar && %{__ln_s} %{_javadir}/kawa.jar kawa.jar
+%{__rm} lucene.jar && %{__ln_s} %{_javadir}/lucene.jar lucene.jar
+%{__rm} poi.jar && %{__ln_s} %{_javadir}/poi.jar poi.jar
+%{__rm} standard.jar && %{__ln_s} %{_javadir}/jakarta-taglibs-standard.jar standard.jar
+popd
+
+%if %{gcj_support}
+%{_bindir}/aot-compile-rpm
+%endif
 
 %check
 %{__make} test
@@ -227,7 +250,7 @@ fi
 %postun
 if [ "$1" = "0" ]; then
     if [ -f /var/lock/subsys/httpd ]; then
-	%{_initrddir}/httpd restart >/dev/null || :
+        %{_initrddir}/httpd restart >/dev/null || :
     fi
 fi
 
