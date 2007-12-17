@@ -60,7 +60,6 @@ BuildRequires:  servletapi5
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
 %endif
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description 
 PHP Hypertext Preprocessor to Java Bridge is a Java module/extension
