@@ -8,8 +8,8 @@
 %define _requires_exceptions pear(lucene/All.php)\\|pear(rt/java_io_File.php)\\|pear(javabridge/Java.php)\\|pear(itext/All.php)\\|pear(rt/java_awt_Color.php)\\|pear(rt/java_io_ByteArrayOutputStream.php)\\|pear(rt/java_lang_System.php)\\|pear(java/Java.php)\\|pear(rt/java_util_LinkedList.php)
 
 Name:           php-%{modname}
-Version:        4.3.0
-Release:        %mkrel 2
+Version:        5.0.0
+Release:        %mkrel 0.0.1
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
@@ -18,11 +18,11 @@ URL:            http://php-java-bridge.sourceforge.net/
 # XXX: upstream is terrible about providing pure source releases
 # XXX: and CVS doesn't help because it contains binaries also
 # cvs -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge login   
-# cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -r upstream_version_4_3_0 php-java-bridge
-# mv php-java-bridge php-java-bridge-4.3.0
-# tar cvjf php-java-bridge-4.3.0.tar.bz2 php-java-bridge-4.3.0
-Source0:        %{name}-%{version}.tar.bz2
-#Source0:        http://internap.dl.sourceforge.net/sourceforge/php-java-bridge/php-java-bridge_%{version}.tar.gz
+# cvs -z3 -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge co -r upstream_version_5_0_0 php-java-bridge
+# mv php-java-bridge php-java-bridge-5.0.0
+# tar cvjf php-java-bridge-5.0.0.tar.bz2 php-java-bridge-5.0.0
+#Source0:        %{name}-%{version}.tar.bz2
+Source0:        http://internap.dl.sourceforge.net/sourceforge/php-java-bridge/php-java-bridge_%{version}.tar.gz
 Source1:        %{name}-cvs.sh
 Requires:       %{name}-backend = %{epoch}:%{version}-%{release}
 Requires:       ejb
@@ -100,15 +100,11 @@ Java applications with embedded PHP scripts.
 
 %prep
 %setup -q
-%{_bindir}/find . -type d -name CVS | %{_bindir}/xargs %{__rm} -r
+%{_bindir}/find . -type d -name CVS | %{_bindir}/xargs %{__rm} -rf
 %{_bindir}/find documentation/API -name '*.html' -o -name '*.css' | %{_bindir}/xargs %{__perl} -pi -e 's/\r$//g'
 for i in examples/php+jsp/index.php \
-         examples/php+jsp/index.html \
-         examples/java-server-faces/helloWorld.jsp \
-         examples/java-server-faces/page2.jsp \
-         tests.php5/NumberTest.java \
-         tests.php4/NumberTest.java; do
-  %{__perl} -pi -e 's/\r$//g' ${i}
+         tests.php5/NumberTest.java; do
+  test -w $i && %{__perl} -pi -e 's/\r$//g' ${i} || exit 1
 done
 
 %{__rm} server/WEB-INF/cgi/php-cgi-i386-linux
@@ -160,9 +156,9 @@ popd
 pushd examples/J2EE/RMI-IIOP/src
 %{javac} -classpath $(build-classpath ejb) *.java
 %{jar} cf ../../../../unsupported/documentBeanClient.jar *
-%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentHome   
-%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentRemote   
-%{__rm} -f *_Skel*.class
+#%%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentHome   
+#%%{java_home}/bin/rmic -classpath .:$(build-classpath ejb) DocumentRemote   
+#%%{__rm} -f *_Skel*.class
 %{jar} cf ../documentBean.jar *
 popd
 
