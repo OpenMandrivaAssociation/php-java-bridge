@@ -1,4 +1,6 @@
-%bcond_with             faces
+%define _fortify_cflags %nil
+
+%bcond_without          faces
 
 %define modname         java-bridge
 %define webappdir       %{_var}/lib/tomcat5/webapps
@@ -74,10 +76,13 @@ Summary:        Tomcat/J2EE backend for the PHP/Java Bridge
 Group:          Development/PHP
 Requires(post): apache-base
 Requires(postun): apache-base
+Requires:       apache-base
 Requires:       php-java-bridge = %{epoch}:%{version}
 Requires:       tomcat5
 Requires(post): rpm-helper
 Requires(postun): rpm-helper
+Requires(post): tomcat5
+Requires(postun): tomcat5
 Obsoletes:      php-java-bridge-standalone < %{epoch}:%{version}-%{release}
 Provides:       %{name}-backend = %{epoch}:%{version}-%{release}
 
@@ -172,6 +177,8 @@ pushd server
 %{__autoconf}
 popd
 
+%{__perl} -pi -e 's/^Class-Path:.*//' server/META-INF/MANIFEST.MF
+
 %build
 %serverbuild
 
@@ -182,7 +189,6 @@ export CLASSPATH=
                  --enable-faces=%{_javadir}/myfaces/myfaces-jsf-api.jar
 %else
                  --disable-faces
-
 %endif
 %{__make}
 
@@ -236,29 +242,27 @@ popd
 %{__make} test
 
 %post
-if [ -f /var/lock/subsys/httpd ]; then
-    %{_initrddir}/httpd restart >/dev/null || :
-fi
-
 %if %{gcj_support}
 %{update_gcjdb}
 %endif
 
-%postun
-if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/httpd ]; then
-        %{_initrddir}/httpd restart >/dev/null || :
-    fi
+if [ -f %{_var}/lock/subsys/tomcat5 ]; then
+    /sbin/service tomcat5 restart >/dev/null || :
 fi
 
+%{_post_webapp}
+
+%postun
 %if %{gcj_support}
 %{clean_gcjdb}
 %endif
 
-%post tomcat
-%{_post_webapp}
+if [ "$1" = "0" ]; then
+    if [ -f %{_var}/lock/subsys/tomcat5 ]; then
+        /sbin/service tomcat5 restart >/dev/null || :
+    fi
+fi
 
-%postun tomcat
 %{_postun_webapp}
 
 %clean
@@ -292,6 +296,7 @@ fi
 
 %files devel
 %defattr(0644,root,root,0755)
-%doc README.GNU_JAVA README.MONO+NET ChangeLog PROTOCOL.TXT documentation examples tests.php5 tests.php4 php_java_lib INSTALL
+%doc README.GNU_JAVA README.MONO+NET ChangeLog PROTOCOL.TXT documentation examples tests.php5 php_java_lib INSTALL
+%{_libdir}/php/extensions/java
 %{_libdir}/php/extensions/php-script.jar
 %{_libdir}/php/extensions/script-api.jar
