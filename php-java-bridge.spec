@@ -297,6 +297,4 @@ fi
 %files devel
 %defattr(0644,root,root,0755)
 %doc README.GNU_JAVA README.MONO+NET ChangeLog PROTOCOL.TXT documentation examples tests.php5 php_java_lib INSTALL
-%{_libdir}/php/extensions/java
-%{_libdir}/php/extensions/php-script.jar
-%{_libdir}/php/extensions/script-api.jar
+%{_libdir}/php/extensions/*
