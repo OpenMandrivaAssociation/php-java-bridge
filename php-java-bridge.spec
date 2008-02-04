@@ -11,7 +11,7 @@
 
 Name:           php-%{modname}
 Version:        5.0.0
-Release:        %mkrel 0.0.1
+Release:        %mkrel 0.0.2
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
