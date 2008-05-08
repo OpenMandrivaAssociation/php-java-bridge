@@ -10,7 +10,7 @@
 %define _requires_exceptions pear(lucene/All.php)\\|pear(rt/java_io_File.php)\\|pear(javabridge/Java.php)\\|pear(itext/All.php)\\|pear(rt/java_awt_Color.php)\\|pear(rt/java_io_ByteArrayOutputStream.php)\\|pear(rt/java_lang_System.php)\\|pear(java/Java.php)\\|pear(rt/java_util_LinkedList.php)
 
 Name:           php-%{modname}
-Version:        5.0.0
+Version:        5.2.2
 Release:        %mkrel 0.0.2
 Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
@@ -234,9 +234,7 @@ pushd %{buildroot}%{webappdir}/JavaBridge/WEB-INF/lib
 %{__rm} standard.jar && %{__ln_s} %{_javadir}/jakarta-taglibs-standard.jar standard.jar
 popd
 
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
+%{gcj_compile}
 
 %check
 %{__make} test
@@ -273,10 +271,7 @@ fi
 %doc README CREDITS NEWS test.php INSTALL.LINUX security COPYING INSTALL RPM-GPG-KEY VERSION
 #%doc LICENSE
 %{_libdir}/php/extensions/JavaBridge.jar
-%if %{gcj_support}
-%dir %{_libdir}/gcj/%{name}
-%{_libdir}/gcj/%{name}/*
-%endif
+%{gcj_files}
 %attr(0755,root,root) %{_libdir}/php/extensions/java.so
 %attr(0755,root,root) %{_libdir}/php/extensions/libnatcJavaBridge.so
 %attr(0755,root,root) %{_libdir}/php/extensions/RunJavaBridge
