@@ -16,7 +16,7 @@ Epoch:          0
 Summary:        PHP Hypertext Preprocessor to Java Bridge
 Group:          Development/PHP
 License:        PHP License
-URL:            http://php-java-bridge.sourceforge.net/
+URL:            https://php-java-bridge.sourceforge.net/
 # XXX: upstream is terrible about providing pure source releases
 # XXX: and CVS doesn't help because it contains binaries also
 # cvs -d:pserver:anonymous@php-java-bridge.cvs.sourceforge.net:/cvsroot/php-java-bridge login   
